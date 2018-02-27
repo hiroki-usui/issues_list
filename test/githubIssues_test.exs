@@ -9,8 +9,9 @@ defmodule GithubIssuesTest do
     end
 
     test "handle response patern [ok, error]" do
-        assert handle_response({ :ok, %{status_code: 200, body: "ok response"} }) == {:ok, "ok response"}
-        assert handle_response({ :NG, %{status_code: 404, body: "not found"} }) == {:error, "not found"}
+        IO.puts("  *** start : handle response patern [ok, error]")
+        assert handle_response(%HTTPoison.Response{status_code: 200, body: ~s({"name": "Devin Torres"})} ) == {:ok, %{"name" => "Devin Torres"}}
+        assert handle_response(%HTTPoison.Response{status_code: 404, body: ~s({"message": "error"})} ) == {:error, %{"message" => "error"}}
     end
 
 end

@@ -1,5 +1,7 @@
 defmodule IssuesList.CLI do
-    
+
+    import IssuesList.TableFormatter, only: [print_table_for_columns: 2]
+
     @default_count 4
 
     @moduledoc"""
@@ -15,9 +17,6 @@ defmodule IssuesList.CLI do
         argv
         |> parse_args
         |> process
-
-        IO.puts("--- end [IssuesList.CLI # run] ---")
-
     end
 
     @doc"""
@@ -66,18 +65,34 @@ defmodule IssuesList.CLI do
         """
         IssuesList.GithubIssues.fetch(user, project)
         |> decode_response
-
-        :ok
+        |> convert_to_list_of_maps
+        |> sort_into_aasending_order
+        |> Enum.take(count)
+        |> print_table_for_columns(["number", "creater_at", "title"])
     end
 
-    def decode_response({:ok, response_data}) do
-        response_data
-    end
+    def decode_response({:ok, body_data}), do: body_data
 
-    def decode_response({:error, response_data}) do
+    def decode_response({:error, error_data}) do
         #{_, message} = List.keyfind(error_data, "message", 0)
-        IO.puts "Error fetching from GitHub: #{message["message"]}"
+        IO.puts "Error fetching from GitHub: #{error_data["message"]}"
         System.halt(2)
+    end
+
+    @doc"""
+    キーワードリストをMapに変換する
+    """
+    def convert_to_list_of_maps(list) do
+        #IO.puts("  *** called [convert_to_list_of_maps]")
+        list
+        |> Enum.map(&Enum.into(&1, Map.new))
+    end
+
+    @doc"""
+    日付順に並び替えを行う
+    """
+    def sort_into_aasending_order(issues_list) do
+        Enum.sort(issues_list, fn i1 , i2 -> i1["created_at"] <= i2["created_at"] end)
     end
 
 end
