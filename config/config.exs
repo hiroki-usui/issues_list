@@ -1,7 +1,8 @@
 # This file is responsible for configuring your application
 # and its dependencies with the aid of the Mix.Config module.
 use Mix.Config
-    config :issues_list, github_url: "https://api.github.com"
+    config :issues_list, github_url:               "https://api.github.com"
+    config :logger,      compile_time_purge_level: :info
 
 # This configuration is loaded before any dependency and is restricted
 # to this project. If another project depends on this project, this

@@ -2,6 +2,8 @@ defmodule IssuesList.CLI do
 
     import IssuesList.TableFormatter, only: [print_table_for_columns: 2]
 
+    require Logger
+
     @default_count 4
 
     @moduledoc"""
@@ -10,9 +12,14 @@ defmodule IssuesList.CLI do
     table of the last _n_ issues in a github project
     """
 
-    def run(argv) do
+    def main(argv) do
 
-        IO.puts("--- start [IssuesList.CLI # run] ---")
+        Logger.debug(fn -> "this is debug log." end)
+        Logger.info(fn -> "this is info log." end)
+        Logger.warn(fn -> "this is warn log." end)
+        Logger.error(fn -> "this is error log." end)
+
+        #IO.puts("--- start [IssuesList.CLI # run] ---")
 
         argv
         |> parse_args
@@ -45,7 +52,6 @@ defmodule IssuesList.CLI do
 
     end
 
-
     def process(:none) do
         IO.puts("bye!")
         System.halt(0)
@@ -59,16 +65,14 @@ defmodule IssuesList.CLI do
     end
 
     def process({user, project, count}) do
-        IO.puts """
-        now creating.
-        parameter[user:#{user}, project:#{project}, count:#{count}]
-        """
+        IO.puts("  *** parameter[user:#{user}, project:#{project}, count:#{count}]")
+
         IssuesList.GithubIssues.fetch(user, project)
         |> decode_response
         |> convert_to_list_of_maps
         |> sort_into_aasending_order
         |> Enum.take(count)
-        |> print_table_for_columns(["number", "creater_at", "title"])
+        |> print_table_for_columns(["number", "created_at", "title"])
     end
 
     def decode_response({:ok, body_data}), do: body_data
